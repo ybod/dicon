@@ -4,13 +4,14 @@ defmodule Mix.Tasks.Dicon.SwitchTest do
   import Mix.Tasks.Dicon.Switch, only: [run: 1]
 
   test "relative path" do
-    config = %{
+    config = [
       target_dir: "test",
       hosts: [:one, :two],
       one: [authority: "one"],
-      two: [authority: "two"],
-    }
-    Mix.Config.persist(dicon: config)
+      two: [authority: "two"]
+    ]
+
+    Application.put_all_env(dicon: config)
 
     run(["0.1.0"])
 
@@ -24,12 +25,13 @@ defmodule Mix.Tasks.Dicon.SwitchTest do
   end
 
   test "absolute path" do
-    config = %{
+    config = [
       target_dir: "/home/test",
       hosts: [:one],
-      one: [authority: "one"],
-    }
-    Mix.Config.persist(dicon: config)
+      one: [authority: "one"]
+    ]
+
+    Application.put_all_env(dicon: config)
 
     run(["0.2.0"])
 
@@ -40,13 +42,14 @@ defmodule Mix.Tasks.Dicon.SwitchTest do
   end
 
   test "hosts filtering" do
-    config = %{
+    config = [
       target_dir: "test",
       hosts: [:one, :two],
       one: [authority: "one"],
-      two: [authority: "two"],
-    }
-    Mix.Config.persist(dicon: config)
+      two: [authority: "two"]
+    ]
+
+    Application.put_all_env(dicon: config)
 
     run(["0.2.0", "--only", "one"])
     assert_receive {:dicon, ref, :connect, ["one"]}

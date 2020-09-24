@@ -5,18 +5,19 @@ defmodule Mix.Tasks.Dicon.DeployTest do
   import Mix.Tasks.Dicon.Deploy, only: [run: 1]
 
   setup_all do
-    config = %{
+    config = [
       target_dir: "test",
       hosts: [:one, :two],
       one: [
         authority: "one",
-        apps_env: [foo: [bar: "baz"]],
+        apps_env: [foo: [bar: "baz"]]
       ],
       two: [
-        authority: "two",
-      ],
-    }
-    Mix.Config.persist(dicon: config)
+        authority: "two"
+      ]
+    ]
+
+    Application.put_all_env(dicon: config)
     :ok
   end
 
@@ -37,7 +38,13 @@ defmodule Mix.Tasks.Dicon.DeployTest do
     assert_receive {:dicon, ^ref, :exec, ["tar -C test/0.1.0 -zxf " <> ^release_file]}
     assert_receive {:dicon, ^ref, :exec, ["rm " <> ^release_file]}
     assert_receive {:dicon, ^ref, :exec, ["cat test/0.1.0/releases/0.1.0/sys.config"]}
-    assert_receive {:dicon, ^ref, :write_file, ["test/0.1.0/releases/0.1.0/sys.config", "[{foo,[{qux,<<\"baz\">>},{bar,<<\"baz\">>}]}].\n", :write]}
+
+    assert_receive {:dicon, ^ref, :write_file,
+                    [
+                      "test/0.1.0/releases/0.1.0/sys.config",
+                      "[{foo,[{qux,<<\"baz\">>},{bar,<<\"baz\">>}]}].\n",
+                      :write
+                    ]}
 
     assert_receive {:dicon, ref, :connect, ["two"]}
     assert_receive {:dicon, ^ref, :exec, ["mkdir -p test"]}
